@@ -495,17 +495,16 @@
       line-height: 1.5;
     }
 
-    /* ─── REALISTIC iPHONE 16 PRO DEVICE FRAME ─── */
+    /* ─── REALISTIC iPHONE LANDSCAPE DEVICE FRAME (16:9 WebGL Fit) ─── */
     .iphone-device-frame {
       position: relative;
       width: 100%;
-      max-width: 405px;
-      height: 720px;
-      max-height: 82vh;
+      max-width: 660px;
+      aspect-ratio: 16 / 9.4;
       margin: 0 auto;
       background: #000000;
       border: 11px solid #1c1c24;
-      border-radius: 50px;
+      border-radius: 36px;
       box-shadow: 
         0 0 0 2px rgba(255, 255, 255, 0.2),
         0 25px 65px rgba(0, 0, 0, 0.85),
@@ -516,49 +515,49 @@
       box-sizing: border-box;
     }
 
-    /* Dynamic Island */
+    /* Dynamic Island (Landscape: Left edge) */
     .iphone-dynamic-island {
       position: absolute;
-      top: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 110px;
-      height: 24px;
+      top: 50%;
+      left: 10px;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 72px;
       background: #000000;
       border-radius: 99px;
       z-index: 50;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: flex-end;
-      padding-right: 14px;
+      justify-content: center;
       gap: 6px;
       pointer-events: none;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
     }
     .di-lens {
-      width: 10px;
-      height: 10px;
+      width: 9px;
+      height: 9px;
       border-radius: 50%;
       background: #111827;
       border: 1.5px solid #1f2937;
     }
     .di-sensor {
-      width: 6px;
-      height: 6px;
+      width: 5px;
+      height: 5px;
       border-radius: 50%;
       background: #0284c7;
       opacity: 0.6;
     }
 
-    /* Home Indicator Bar */
+    /* Home Indicator Bar (Landscape: Bottom center) */
     .iphone-home-bar {
       position: absolute;
-      bottom: 8px;
+      bottom: 6px;
       left: 50%;
       transform: translateX(-50%);
-      width: 136px;
-      height: 4.5px;
-      background: rgba(255, 255, 255, 0.75);
+      width: 140px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.7);
       border-radius: 99px;
       z-index: 50;
       pointer-events: none;
@@ -568,7 +567,7 @@
     .iphone-screen-area {
       width: 100%;
       height: 100%;
-      border-radius: 42px;
+      border-radius: 26px;
       overflow: hidden;
       background: #000000;
       position: relative;
