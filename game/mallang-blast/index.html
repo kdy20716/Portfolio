@@ -16,8 +16,8 @@
         background: #000000;
       }
 
-      /* Full-viewport container, centered */
-      #unity-container {
+      /* ── Desktop container: full viewport, centered ── */
+      #unity-container.unity-desktop {
         position: fixed !important;
         inset: 0 !important;
         transform: none !important;
@@ -28,20 +28,35 @@
         overflow: hidden !important;
       }
 
-      /*
-       * 16:9 fill — canvas grows to fill whichever axis hits first.
-       * Equivalent to object-fit: contain for a 16:9 box.
-       */
-      #unity-canvas {
+      /* Desktop canvas: 16:9 fill — grows to fill whichever axis hits first */
+      #unity-container.unity-desktop #unity-canvas {
         display: block !important;
         background: #110e1f;
-        /* Fill width, cap height */
         width: 100vw !important;
-        height: 56.25vw !important; /* 100 * 9/16 */
-        /* When viewport is taller than wide (shouldn't happen on 16:9 game,
-           but just in case): cap to 100vh and adjust width */
+        height: 56.25vw !important;   /* 100 * 9/16 */
         max-height: 100vh !important;
         max-width: 177.78vh !important; /* 100 * 16/9 */
+      }
+
+      /* ── Mobile container: fill entire screen edge-to-edge ── */
+      #unity-container.unity-mobile {
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        transform: none !important;
+        display: block !important;
+        background: #000 !important;
+        overflow: hidden !important;
+      }
+
+      /* Mobile canvas: fill 100% of container */
+      #unity-container.unity-mobile #unity-canvas,
+      canvas.unity-mobile {
+        display: block !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: #110e1f;
       }
 
       #unity-footer { display: none !important; }
