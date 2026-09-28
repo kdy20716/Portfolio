@@ -64,7 +64,7 @@
 
 * 🎂 **생일**: 2002년생 07월 16일
 * 🕹️ **관심 분야**: 게임 개발자, UI/UX 디자인
-* 💻 **GitHub**: [kdy20716-droid](https://github.com/kdy20716-droid)
+* 💻 **GitHub**: [kdy20716](https://github.com/kdy20716)
 
 ---
 
