@@ -8,11 +8,18 @@
     <link rel="stylesheet" href="TemplateData/style.css">
   </head>
   <body>
-    <!-- Top-left Back Button (포트폴리오 돌아가기) -->
+    <!-- Back Button: icon only, desktop standalone only -->
     <a href="../../index.html#portfolio" id="back-btn" onclick="if(window.history.length > 1){window.history.back(); return false;}">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-      <span>포트폴리오로 돌아가기</span>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
     </a>
+
+    <!-- Mobile Audio Unlock Overlay -->
+    <div id="audio-unlock-overlay">
+      <div id="audio-unlock-inner">
+        <div id="audio-unlock-icon">🎵</div>
+        <div id="audio-unlock-text">탭해서 시작</div>
+      </div>
+    </div>
 
     <style>
       html, body {
@@ -24,7 +31,6 @@
         background: #000000;
       }
 
-      /* Desktop standalone full-screen fit */
       #unity-container {
         position: fixed !important;
         left: 0 !important;
@@ -51,24 +57,23 @@
         display: none !important;
       }
 
+      /* Back button: icon-only circle, desktop only */
       #back-btn {
         position: fixed;
-        top: 20px;
-        left: 20px;
+        top: 16px;
+        left: 16px;
         z-index: 9999;
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
         background: rgba(15, 23, 42, 0.85);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
         color: #ffffff;
         text-decoration: none;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        font-size: 14px;
-        font-weight: 700;
-        padding: 10px 20px;
-        border-radius: 99px;
+        border-radius: 50%;
         border: 1px solid rgba(255, 255, 255, 0.25);
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
         transition: all 0.25s ease;
@@ -79,15 +84,105 @@
         transform: translateY(-2px);
         box-shadow: 0 6px 25px rgba(0, 0, 0, 0.8);
       }
+
+      /* Hide back button on mobile and inside iframe */
+      @media (pointer: coarse), (max-width: 768px) {
+        #back-btn { display: none !important; }
+      }
+
+      /* Mobile Audio Unlock Overlay */
+      #audio-unlock-overlay {
+        display: none; /* shown via JS only on mobile */
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        background: rgba(0, 0, 0, 0.72);
+        backdrop-filter: blur(6px);
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+      #audio-unlock-overlay.visible {
+        display: flex;
+      }
+      #audio-unlock-inner {
+        text-align: center;
+        color: #ffffff;
+        pointer-events: none;
+        animation: pulseUp 1.6s ease-in-out infinite;
+      }
+      #audio-unlock-icon {
+        font-size: 3.2rem;
+        margin-bottom: 14px;
+      }
+      #audio-unlock-text {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 1.3rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+      }
+      @keyframes pulseUp {
+        0%, 100% { transform: translateY(0); opacity: 1; }
+        50% { transform: translateY(-8px); opacity: 0.75; }
+      }
     </style>
+
     <script>
-      // Detect if running inside iframe (resume.html or modal)
-      if (window.self !== window.top) {
-        window.addEventListener('DOMContentLoaded', () => {
+      var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      var isIframe = window.self !== window.top;
+
+      // Hide back button inside iframe (resume.html embed)
+      if (isIframe) {
+        document.addEventListener('DOMContentLoaded', function() {
           var btn = document.getElementById('back-btn');
           if (btn) btn.style.display = 'none';
         });
       }
+
+      // Show audio unlock overlay on mobile
+      if (isMobile) {
+        document.addEventListener('DOMContentLoaded', function() {
+          var overlay = document.getElementById('audio-unlock-overlay');
+          if (overlay) overlay.classList.add('visible');
+        });
+      }
+
+      // Unlock AudioContext on first touch (critical for iOS/Android)
+      function unlockAudioContext() {
+        // Resume any suspended AudioContext
+        if (window.AudioContext || window.webkitAudioContext) {
+          var AC = window.AudioContext || window.webkitAudioContext;
+          // Try to resume all existing AudioContext instances
+          if (typeof unityInstance !== 'undefined' && unityInstance) {
+            try { unityInstance.Module.resumeAudioContext && unityInstance.Module.resumeAudioContext(); } catch(e) {}
+          }
+          // Create a silent buffer and play it to unlock
+          try {
+            var ctx = new AC();
+            var buf = ctx.createBuffer(1, 1, 22050);
+            var src = ctx.createBufferSource();
+            src.buffer = buf;
+            src.connect(ctx.destination);
+            src.start(0);
+            ctx.resume();
+          } catch(e) {}
+        }
+
+        // Hide overlay
+        var overlay = document.getElementById('audio-unlock-overlay');
+        if (overlay) {
+          overlay.style.transition = 'opacity 0.3s ease';
+          overlay.style.opacity = '0';
+          setTimeout(function() { overlay.style.display = 'none'; }, 320);
+        }
+
+        // Remove listeners after first touch
+        document.removeEventListener('touchstart', unlockAudioContext, true);
+        document.removeEventListener('click', unlockAudioContext, true);
+      }
+
+      document.addEventListener('touchstart', unlockAudioContext, true);
+      document.addEventListener('click', unlockAudioContext, true);
     </script>
 
     <div id="unity-container" class="unity-desktop">
@@ -108,12 +203,6 @@
     <script>
       var canvas = document.querySelector("#unity-canvas");
 
-      // Shows a temporary message banner/ribbon for a few seconds, or
-      // a permanent error message on top of the canvas if type=='error'.
-      // If type=='warning', a yellow highlight color is used.
-      // Modify or remove this function to customize the visually presented
-      // way that non-critical warnings and error messages are presented to the
-      // user.
       function unityShowBanner(msg, type) {
         var warningBanner = document.querySelector("#unity-warning");
         function updateBannerVisibility() {
@@ -145,49 +234,21 @@
         productName: "Mallang Blast",
         productVersion: "1.2.0",
         showBanner: unityShowBanner,
-        // errorHandler: function(err, url, line) {
-        //    alert("error " + err + " occurred at line " + line);
-        //    // Return 'true' if you handled this error and don't want Unity
-        //    // to process it further, 'false' otherwise.
-        //    return true;
-        // },
       };
 
-      // By default, Unity keeps WebGL canvas render target size matched with
-      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
-      // Set this to false if you want to decouple this synchronization from
-      // happening inside the engine, and you would instead like to size up
-      // the canvas DOM size and WebGL render target sizes yourself.
-      // config.matchWebGLToCanvasSize = false;
-
-      // If you would like all file writes inside Unity Application.persistentDataPath
-      // directory to automatically persist so that the contents are remembered when
-      // the user revisits the site the next time, uncomment the following line:
       config.autoSyncPersistentDataPath = true;
-      // This autosyncing is currently not the default behavior to avoid regressing
-      // existing user projects that might rely on the earlier manual
-      // JS_FileSystem_Sync() behavior, but in future Unity version, this will be
-      // expected to change.
 
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
-
+      if (isMobile) {
+        // Mobile: fill entire screen
         var meta = document.createElement('meta');
         meta.name = 'viewport';
         meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
         document.getElementsByTagName('head')[0].appendChild(meta);
         document.querySelector("#unity-container").className = "unity-mobile";
         canvas.className = "unity-mobile";
-
-        // To lower canvas resolution on mobile devices to gain some
-        // performance, uncomment the following line:
-        // config.devicePixelRatio = 1;
-
-
       } else {
-        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
-        if (window.self !== window.top) {
-          // Inside portfolio iframe: fill container seamlessly
+        // Desktop: full-window responsive or iframe fill
+        if (isIframe) {
           var container = document.querySelector("#unity-container");
           container.style.position = "absolute";
           container.style.left = "0";
@@ -212,19 +273,33 @@
       script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
           document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
-              }).then((unityInstance) => {
-                document.querySelector("#unity-loading-bar").style.display = "none";
-                document.querySelector("#unity-fullscreen-button").onclick = () => {
-                  unityInstance.SetFullscreen(1);
-                };
-
-              }).catch((message) => {
-                alert(message);
-              });
-            };
+        }).then((instance) => {
+          window.unityInstance = instance;
+          document.querySelector("#unity-loading-bar").style.display = "none";
+          document.querySelector("#unity-fullscreen-button").onclick = () => {
+            instance.SetFullscreen(1);
+          };
+          // Resume AudioContext after Unity loads (extra safety for mobile)
+          if (isMobile) {
+            document.addEventListener('touchstart', function resumeAudio() {
+              try {
+                var ctx = instance.Module && instance.Module.SystemInfo && instance.Module.AL;
+                // Force resume via Web Audio API
+                if (window.AudioContext || window.webkitAudioContext) {
+                  var AC = window.AudioContext || window.webkitAudioContext;
+                  var testCtx = new AC();
+                  testCtx.resume();
+                }
+              } catch(e) {}
+              document.removeEventListener('touchstart', resumeAudio, true);
+            }, { once: true, capture: true });
+          }
+        }).catch((message) => {
+          alert(message);
+        });
+      };
 
       document.body.appendChild(script);
-
     </script>
   </body>
 </html>
