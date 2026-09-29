@@ -573,12 +573,71 @@
       background: #000000;
       position: relative;
     }
-    .iphone-screen-area iframe {
+    .iphone-game-launch {
+      display: block;
       width: 100%;
       height: 100%;
-      border: none;
-      display: block;
+      position: relative;
+      text-decoration: none;
       overflow: hidden;
+    }
+    .iphone-preview-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease, filter 0.4s ease;
+    }
+    .iphone-play-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.4) 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      transition: background 0.3s ease;
+    }
+    .iphone-play-btn {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #a855f7, #6366f1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1.6rem;
+      padding-left: 4px;
+      box-shadow: 0 0 25px rgba(168, 85, 247, 0.6);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .iphone-play-text {
+      color: #ffffff;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    }
+    .iphone-play-sub {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.85rem;
+      font-weight: 500;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 4px 12px;
+      border-radius: 20px;
+      backdrop-filter: blur(8px);
+    }
+    .iphone-game-launch:hover .iphone-preview-img {
+      transform: scale(1.06);
+      filter: brightness(1.08);
+    }
+    .iphone-game-launch:hover .iphone-play-btn {
+      transform: scale(1.12);
+      box-shadow: 0 0 35px rgba(168, 85, 247, 0.9);
+    }
+    .iphone-game-launch:hover .iphone-play-overlay {
+      background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.3) 100%);
     }
 
     /* ─── SLIDE 4: PICKPICK PLATFORM (WIDE & NO SCROLL) ─────────────── */
@@ -1027,16 +1086,18 @@
               <div class="di-sensor"></div>
             </div>
 
-            <!-- Screen Area with iframe -->
+            <!-- Screen Area with Playable Link & Preview -->
             <div class="iphone-screen-area">
-              <iframe 
-                id="mallang-webgl-frame"
-                data-src="game/mallang-blast/index.html" 
-                src="about:blank"
-                allow="autoplay; fullscreen; gamepad" 
-                scrolling="no"
-                title="말랑 블라스트 Unity WebGL">
-              </iframe>
+              <a href="https://kdy20716.github.io/mallang-blast/" target="_blank" rel="noopener noreferrer" class="iphone-game-launch" title="말랑 블라스트 WebGL 플레이하기 (새 창)">
+                <img src="asset/mallang/mallang_gameplay.png" alt="Mallang Blast Gameplay" class="iphone-preview-img">
+                <div class="iphone-play-overlay">
+                  <div class="iphone-play-btn">
+                    <i class="fa-solid fa-play"></i>
+                  </div>
+                  <span class="iphone-play-text">WebGL 플레이하기</span>
+                  <span class="iphone-play-sub">새 창에서 즉시 실행 ↗</span>
+                </div>
+              </a>
             </div>
 
             <!-- Home Bar -->
@@ -1229,17 +1290,7 @@
       slidesEl.style.transform = `translateY(-${current * 100}vh)`;
       dots.forEach((d, i) => d.classList.toggle('active', i === current));
 
-      // 3번째 슬라이드(말랑 블라스트)에 화면이 내려왔을 때 비로소 게임 실행!
-      if (current === 2) {
-        loadMallangGame();
-      }
-    }
-
-    function loadMallangGame() {
-      const frame = document.getElementById('mallang-webgl-frame');
-      if (frame && (!frame.src || frame.src === 'about:blank' || frame.getAttribute('src') === 'about:blank')) {
-        frame.src = frame.dataset.src;
-      }
+      // 3번째 슬라이드(말랑 블라스트): 새 창 링크 버튼으로 독립 제공
     }
 
     // Wheel Scroll Debounce
